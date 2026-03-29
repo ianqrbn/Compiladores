@@ -2,19 +2,24 @@ import sys
 
 
 class TOKEN:
-    tk_EOI, tk_Mul, tk_Div, tk_Mod, tk_Add, tk_Sub, tk_Not, tk_Lss, tk_Leq, tk_Gtr, \
+    tk_EOI, tk_Mul, tk_Div, tk_Mod, tk_Add, tk_Sub, tk_Incr, tk_Decr, tk_Not, tk_Lss, tk_Leq, tk_Gtr, \
     tk_Geq, tk_Eq, tk_Neq, tk_Assign, tk_And, tk_Or, tk_If, tk_Else, tk_While, tk_For,       \
     tk_Int, tk_Lparen, tk_Rparen, tk_Lbrace, tk_Rbrace, tk_Semi, tk_Comma, tk_Ident,          \
-    tk_Integer, tk_String = range(30)
+    tk_Integer, tk_String = range(32)
 
-simbolos = ["EOI", "Op_multiply", "Op_divide", "Op_mod", "Op_add", "Op_subtract", "Op_not", "Op_less", "Op_lessequal", "Op_greater", "Op_greaterequal",
-    "Op_equal", "Op_notequal", "Op_assign", "Op_and", "Op_or", "Keyword_if",
-    "Keyword_else", "Keyword_while", "Keyword_for", "Keyword_int", "LeftParen",
-    "RightParen", "LeftBrace", "RightBrace", "Semicolon", "Comma", "Identifier",
-    "Integer", "String"]
+simbolos = ["EOI", "Op_multiply", "Op_divide", "Op_mod", "Op_add", "Op_subtract", 
+            "Op_increment", "Op_decrement",
+            "Op_not", "Op_less", "Op_lessequal", "Op_greater", "Op_greaterequal",
+            "Op_equal", "Op_notequal", "Op_assign", "Op_and", "Op_or", "Keyword_if",
+            "Keyword_else", "Keyword_while", "Keyword_for", "Keyword_int", "LeftParen",
+            "RightParen", "LeftBrace", "RightBrace", "Semicolon", "Comma", "Identifier",
+            "Integer", "String"]
 
-separadores = { '{': TOKEN.tk_Lbrace, '}': TOKEN.tk_Rbrace, '(': TOKEN.tk_Lparen, ')': TOKEN.tk_Rparen, '+': TOKEN.tk_Add, '-': TOKEN.tk_Sub,
-    '*': TOKEN.tk_Mul, '%': TOKEN.tk_Mod, ';': TOKEN.tk_Semi, ',': TOKEN.tk_Comma }
+separadores = { '{': TOKEN.tk_Lbrace, '}': TOKEN.tk_Rbrace, '(': TOKEN.tk_Lparen,
+                ')': TOKEN.tk_Rparen, '+': TOKEN.tk_Add, '-': TOKEN.tk_Sub,
+                '*': TOKEN.tk_Mul, '%': TOKEN.tk_Mod, ';': TOKEN.tk_Semi, ',': TOKEN.tk_Comma,
+                '=': TOKEN.tk_Assign, '>': TOKEN.tk_Gtr, '<': TOKEN.tk_Lss,
+                '!': TOKEN.tk_Not}
 
 letras = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', \
           'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', \
@@ -50,41 +55,57 @@ def eh_operador_composto(Op, linha_atual, coluna_atual):
                 return error(linha_atual, coluna_atual, "operador não existe")
         else: 
             return TOKEN.tk_Assign, linha_atual, coluna_atual
-    if Op == ">":
+    elif Op == ">":
         if proximo_char() == "=":
             if proximo_char().isspace():
                 return TOKEN.tk_Geq, linha_atual, coluna_atual
             else:
                 return error(linha_atual, coluna_atual, "operador não existe")
         else: return TOKEN.tk_Gtr, linha_atual, coluna_atual
-    if Op == "<":
+    elif Op == "<":
         if proximo_char() == "=": 
             if proximo_char().isspace():
                 return TOKEN.tk_Leq, linha_atual, coluna_atual
             else:
                 return error(linha_atual, coluna_atual, "operador não existe")
         else: return TOKEN.tk_Lss, linha_atual, coluna_atual
-    if Op == "!":
+    elif Op == "!":
         if proximo_char() == "=": 
             if proximo_char().isspace():
                 return TOKEN.tk_Neq, linha_atual, coluna_atual
             else:
                 return error(linha_atual, coluna_atual, "operador não existe")
         else: return TOKEN.tk_Not, linha_atual, coluna_atual
-    if Op == "&":
+    elif Op == "&":
         if proximo_char() == "&": 
             if proximo_char().isspace():
                 return TOKEN.tk_And, linha_atual, coluna_atual
             else:
                 return error(linha_atual, coluna_atual, "operador não existe")
         else: return error(linha_atual, coluna_atual, "operador não existe")
-    if Op == "|":
+    elif Op == "|":
         if proximo_char() == "|": 
             if proximo_char().isspace():
                 return TOKEN.tk_Or, linha_atual, coluna_atual
             else:
                 return error(linha_atual, coluna_atual, "operador não existe")
         else: return error(linha_atual, coluna_atual, "operador não existe")
+
+    elif Op == "+":
+        if proximo_char() == "+": 
+            if proximo_char().isspace():
+                return TOKEN.tk_Incr, linha_atual, coluna_atual
+            else:
+                return error(linha_atual, coluna_atual, "operador não existe")
+        else: return TOKEN.tk_Add, linha_atual, coluna_atual
+    
+    elif Op == "-":
+        if proximo_char() == "-": 
+            if proximo_char().isspace():
+                return TOKEN.tk_Decr, linha_atual, coluna_atual
+            else:
+                return error(linha_atual, coluna_atual, "operador não existe")
+        else: return TOKEN.tk_Sub, linha_atual, coluna_atual
 
 
 def eh_literal(linha_ini, coluna_ini):
@@ -186,6 +207,8 @@ def pega_token():
     elif char_atual == '|':     return eh_operador_composto(char_atual, linha_atual, coluna_atual)
     elif char_atual == '!':     return eh_operador_composto(char_atual, linha_atual, coluna_atual)
     elif char_atual == '=':     return eh_operador_composto(char_atual, linha_atual, coluna_atual)
+    elif char_atual == '+':     return eh_operador_composto(char_atual, linha_atual, coluna_atual)
+    elif char_atual == '-':     return eh_operador_composto(char_atual, linha_atual, coluna_atual)
     elif char_atual in separadores:
         sepa = separadores[char_atual]
         proximo_char()
