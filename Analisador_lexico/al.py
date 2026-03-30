@@ -188,6 +188,7 @@ def eh_nume_ou_iden(linha_ini, coluna_ini):
                 return TOKEN.tk_Integer, linha_ini, coluna_ini, int(text)
             else:
                 return error(linha_ini, coluna_ini, "caracter invalido no inteiro")
+    else: return error(linha_ini, coluna_ini, "identificador com caracteres invalidos")
 
 
 def pega_token():
