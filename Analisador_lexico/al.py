@@ -231,7 +231,7 @@ while True:
     if tok == "coment":
         continue
 
-    print("%5d  %5d   %-14s" % (lin, col, simbolos[tok]), end='')
+    print("%5d %5d  %5d   %-14s" % (tok, lin, col, simbolos[tok]), end='')
 
     if tok == TOKEN.tk_Integer:  print("   %5d" % (t[3]))
     elif tok == TOKEN.error:     print("  %s" %   (t[3]))

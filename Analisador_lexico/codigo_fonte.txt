@@ -2,10 +2,10 @@
   Show Ident and Integers
  */
 // comentario
-int phoenix_number
-phoenix_number & 142857;
+int phoenix_number ()
+phoenix_number || 142857;
 phoenix_number = 142857;
-phoenix_number--
+phoenix_number--, 
 phoenix_number == 142857;
 cavalo=ph-hp
   "amigo"
