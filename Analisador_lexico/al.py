@@ -5,7 +5,7 @@ class TOKEN:
     tk_EOI, tk_Mul, tk_Div, tk_Mod, tk_Add, tk_Sub, tk_Incr, tk_Decr, tk_Not, tk_Lss, tk_Leq, tk_Gtr, \
     tk_Geq, tk_Eq, tk_Neq, tk_Assign, tk_And, tk_Or, tk_If, tk_Else, tk_While, tk_For,       \
     tk_Int, tk_Lparen, tk_Rparen, tk_Lbrace, tk_Rbrace, tk_Semi, tk_Comma, tk_Ident,          \
-    tk_Integer, tk_String = range(32)
+    tk_Integer, tk_String, error = range(33)
 
 simbolos = ["EOI", "Op_multiply", "Op_divide", "Op_mod", "Op_add", "Op_subtract", 
             "Op_increment", "Op_decrement",
@@ -13,7 +13,7 @@ simbolos = ["EOI", "Op_multiply", "Op_divide", "Op_mod", "Op_add", "Op_subtract"
             "Op_equal", "Op_notequal", "Op_assign", "Op_and", "Op_or", "Keyword_if",
             "Keyword_else", "Keyword_while", "Keyword_for", "Keyword_int", "LeftParen",
             "RightParen", "LeftBrace", "RightBrace", "Semicolon", "Comma", "Identifier",
-            "Integer", "String"]
+            "Integer", "String", "ERROR"]
 
 separadores = { '{': TOKEN.tk_Lbrace, '}': TOKEN.tk_Rbrace, '(': TOKEN.tk_Lparen,
                 ')': TOKEN.tk_Rparen, '+': TOKEN.tk_Add, '-': TOKEN.tk_Sub,
@@ -34,8 +34,7 @@ char_atual = ' '
 entrada = None
 
 def error(linha_ini, coluna_ini, msg):
-    print(linha_ini, coluna_ini, msg)
-    exit(1)
+    return(TOKEN.error, linha_ini, coluna_ini, msg)
 
 def proximo_char():
     global char_atual, linha, coluna
@@ -235,6 +234,7 @@ while True:
     print("%5d  %5d   %-14s" % (lin, col, simbolos[tok]), end='')
 
     if tok == TOKEN.tk_Integer:  print("   %5d" % (t[3]))
+    elif tok == TOKEN.error:     print("  %s" %   (t[3]))
     elif tok == TOKEN.tk_Ident:  print("  %s" %   (t[3]))
     elif tok == TOKEN.tk_String: print('  "%s"' % (t[3]))
     else:                  print("")

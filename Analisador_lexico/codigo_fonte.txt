@@ -3,7 +3,7 @@
  */
 // comentario
 int phoenix_number
-phoenix_number && 142857;
+phoenix_number & 142857;
 phoenix_number = 142857;
 phoenix_number--
 phoenix_number == 142857;
