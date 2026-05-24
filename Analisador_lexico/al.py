@@ -48,6 +48,47 @@ def proximo_char():
 def eh_operador_composto(Op, linha_atual, coluna_atual):
     if Op == "=":
         if proximo_char() == "=": 
+            proximo_char() 
+            return TOKEN.tk_Eq, linha_atual, coluna_atual
+        else: 
+            return TOKEN.tk_Assign, linha_atual, coluna_atual
+    elif Op == ">":
+        if proximo_char() == "=":
+            proximo_char()
+            return TOKEN.tk_Geq, linha_atual, coluna_atual
+        else: return TOKEN.tk_Gtr, linha_atual, coluna_atual
+    elif Op == "<":
+        if proximo_char() == "=": 
+            proximo_char()
+            return TOKEN.tk_Leq, linha_atual, coluna_atual
+        else: return TOKEN.tk_Lss, linha_atual, coluna_atual
+    elif Op == "!":
+        if proximo_char() == "=": 
+            proximo_char()
+            return TOKEN.tk_Neq, linha_atual, coluna_atual
+        else: return TOKEN.tk_Not, linha_atual, coluna_atual
+    elif Op == "&":
+        if proximo_char() == "&": 
+            proximo_char()
+            return TOKEN.tk_And, linha_atual, coluna_atual
+        else: return error(linha_atual, coluna_atual, "operador não existe")
+    elif Op == "|":
+        if proximo_char() == "|": 
+            proximo_char()
+            return TOKEN.tk_Or, linha_atual, coluna_atual
+        else: return error(linha_atual, coluna_atual, "operador não existe")
+    elif Op == "+":
+        if proximo_char() == "+": 
+            proximo_char()
+            return TOKEN.tk_Incr, linha_atual, coluna_atual
+        else: return TOKEN.tk_Add, linha_atual, coluna_atual
+    elif Op == "-":
+        if proximo_char() == "-": 
+            proximo_char()
+            return TOKEN.tk_Decr, linha_atual, coluna_atual
+        else: return TOKEN.tk_Sub, linha_atual, coluna_atual
+    if Op == "=":
+        if proximo_char() == "=": 
             if proximo_char().isspace():
                 return TOKEN.tk_Eq, linha_atual, coluna_atual
             else:
@@ -216,29 +257,57 @@ def pega_token():
     else: return eh_nume_ou_iden(linha_atual, coluna_atual)
 
 
-entrada = sys.stdin
-if len(sys.argv) > 1:
+def gera_lista_tokens():
+    global entrada, char_atual, linha, coluna
+
     try:
-        entrada = open(sys.argv[1], "r", 4096)
+        entrada = open("codigo_fonte.txt", "r", 4096)
     except IOError as e:
-        error(0, 0, "Can't open %s" % sys.argv[1])
+        error(0, 0, "Can't open %s" % "codigo_fonte.txt")
 
-while True:
-    t = pega_token()
-    tok = t[0]
-    lin = t[1]
-    col= t[2]
+    lista_tokens = []
+
+    while True:
+        t = pega_token()
+        tok = t[0]
+        lin = t[1]
+        col= t[2]
+        
+        if tok == "coment":
+            continue
+
+
+        if tok == TOKEN.tk_Integer:  value = t[3]
+        elif tok == TOKEN.error:     value = t[3]
+        elif tok == TOKEN.tk_Ident:  value = t[3]
+        elif tok == TOKEN.tk_String: value = t[3]
+        else:                  value = ''
+
+        lista_tokens.append({
+            'type': tok,
+            'line': lin,
+            'col': col,
+            'value': value
+        })
+
+        if tok == TOKEN.tk_EOI:
+            break
+
+    return lista_tokens
+
+
+if __name__ == "__main__":
+    saida = open("lista_tokens.txt", "w")
+    lista_tokens = gera_lista_tokens()
     
-    if tok == "coment":
-        continue
-
-    print("%5d %5d  %5d   %-14s" % (tok, lin, col, simbolos[tok]), end='')
-
-    if tok == TOKEN.tk_Integer:  print("   %5d" % (t[3]))
-    elif tok == TOKEN.error:     print("  %s" %   (t[3]))
-    elif tok == TOKEN.tk_Ident:  print("  %s" %   (t[3]))
-    elif tok == TOKEN.tk_String: print('  "%s"' % (t[3]))
-    else:                  print("")
-
-    if tok == TOKEN.tk_EOI:
-        break
+    print(f"{'TOKEN':<18} | {'LINHA':<7} | {'COLUNA':<7} | {'VALOR/LEXEMA'}")
+    print("-" * 55)
+    print(f"{'TOKEN':<18} | {'LINHA':<7} | {'COLUNA':<7} | {'VALOR/LEXEMA'}", file=saida)
+    print("-" * 55, file=saida)
+    
+    for t in lista_tokens:
+        nome_token = simbolos[t['type']]
+        valor = t['value'] if t['value'] != "" else "-" 
+        
+        print(f"{nome_token:<18} | {t['line']:<7} | {t['col']:<7} | {valor}")
+        print(f"{nome_token:<18} | {t['line']:<7} | {t['col']:<7} | {valor}", file=saida)

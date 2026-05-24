@@ -1,0 +1,15 @@
+/*
+  Show Ident and Integers
+ */
+// comentario
+int phoenix_number;
+int var1; 
+int var2;
+var1 = 10;
+var2 = 01;
+phoenix_number = 142857;
+phoenix_number--
+var1 = var2 + phoenix_number;
+if (phoenix_number == 142857){
+  cavalo=var1-var2;
+}
