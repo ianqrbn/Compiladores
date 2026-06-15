@@ -202,24 +202,32 @@ class Parser:
         self.consume(al.TOKEN.tk_Semi, "Esperado ';' no final do comando.")
 
     def parse_expression(self):
-        nome = self.parse_primary()  # Devolve o nome do ident (ou None)
+        tipo, nome = self.parse_primary()  # Devolve (tipo, nome do ident ou None)
 
         if nome is not None and self.check(al.TOKEN.tk_Assign):
             self.tabela.inicializar(nome)
 
         operadores_binarios = {
-            al.TOKEN.tk_Add, al.TOKEN.tk_Sub, al.TOKEN.tk_Mul, al.TOKEN.tk_Div, 
+            al.TOKEN.tk_Add, al.TOKEN.tk_Sub, al.TOKEN.tk_Mul, al.TOKEN.tk_Div,
             al.TOKEN.tk_Mod, al.TOKEN.tk_Assign, al.TOKEN.tk_Eq, al.TOKEN.tk_Neq,
             al.TOKEN.tk_Lss, al.TOKEN.tk_Leq, al.TOKEN.tk_Gtr, al.TOKEN.tk_Geq,
             al.TOKEN.tk_And, al.TOKEN.tk_Or
         }
-               
+
         while self.current_token()['type'] in operadores_binarios:
-            self.advance() 
-            self.parse_primary()
-            
+            op = self.current_token()  # Operador atual (para reportar linha/coluna)
+            self.advance()
+            tipo_dir, _ = self.parse_primary()
+            # Operandos de tipos diferentes geram erro
+            if tipo != 'unknown' and tipo_dir != 'unknown' and tipo != tipo_dir:
+                self.erro_semantico(op['line'], op['col'],
+                    f"Operação entre tipos incompatíveis: '{tipo}' e '{tipo_dir}'.")
+            tipo = tipo if tipo != 'unknown' else tipo_dir  # tipo resultante da expressão
+
         if self.current_token()['type'] in {al.TOKEN.tk_Incr, al.TOKEN.tk_Decr}:
             self.advance()
+
+        return tipo  # devolve o tipo final da expressão
 
     def parse_primary(self):
         curr = self.current_token()  # Guarda o token para consultar a tabela
@@ -233,23 +241,30 @@ class Parser:
                 # Uso de variável que nunca foi declarada
                 self.erro_semantico(curr['line'], curr['col'],
                     f"Variável '{nome}' usada sem ter sido declarada.")
+                return 'unknown', nome
             elif not simbolo['inicializada'] and not self.check(al.TOKEN.tk_Assign):
                 # Leitura de variável declarada mas ainda sem valor
                 print(f">>> [AVISO SEMÂNTICO L{curr['line']}:C{curr['col']}]: "
                       f"Variável '{nome}' pode ser usada sem ter sido inicializada.")
-            return nome  # devolve o nome para o chamador tratar a atribuição
-        # Se for um Número ou String
-        elif curr_type in {al.TOKEN.tk_Integer, al.TOKEN.tk_String}:
+            return simbolo['tipo'], nome  # devolve (tipo, nome) para o chamador
+        # Se for um Número (tipo int)
+        elif curr_type == al.TOKEN.tk_Integer:
             self.advance()
+            return 'int', None
+        # Se for uma String (tipo string)
+        elif curr_type == al.TOKEN.tk_String:
+            self.advance()
+            return 'string', None
         # Se for uma expressão entre parênteses
         elif curr_type == al.TOKEN.tk_Lparen:
             self.advance()
-            self.parse_expression()
+            tipo = self.parse_expression()
             self.consume(al.TOKEN.tk_Rparen, "Esperado ')' após a expressão interna.")
+            return tipo, None
         else:
             self.consume(al.TOKEN.error, "Expressão inválida (Esperado identificador, número ou '(').")
 
-        return None
+        return 'unknown', None
 
 
 if __name__ == "__main__":
