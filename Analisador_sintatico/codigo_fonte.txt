@@ -5,11 +5,12 @@
 int phoenix_number;
 int var1; 
 int var2;
+int cavalo;
 var1 = 10;
 var2 = 01;
 phoenix_number = 142857;
-phoenix_number--
-var1 = var2 + phoenix_number;
+phoenix_number--;
+var1 = var2 + 55 ;
 if (phoenix_number == 142857){
   cavalo=var1-var2;
 }
